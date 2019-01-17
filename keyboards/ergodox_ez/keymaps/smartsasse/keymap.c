@@ -40,7 +40,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  *                                 ,------|------|------|       |------+------+------.
  *                                 |      |      |      |       |      |      |      |
  *                                 | Space|  Tab |------|       |------| Back-| Enter|
- *                                 |      |      |      |       |  Del | space|      |
+ *                                 |      |      | ^F4  |       |  Del | space|      |
  *                                 `--------------------'       `--------------------'
  */
 [BASE] = LAYOUT_ergodox(
@@ -52,7 +52,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
        MO(NUMB),            KC_LSFT,  KC_LCTL,  KC_LALT,      KC_LGUI,
                                                                         KC_NO,    KC_NO,
                                                                                   KC_NO,
-                                                              KC_SPC,   KC_TAB,   KC_NO,
+                                                              KC_SPC,   KC_TAB,   LCTL(KC_F4),
        // right hand
        NO_AMPR,             NO_EQL,   NO_RPRN,  NO_RCBR_MAC,  NO_RBRC,  KC_HASH,  NO_ACUT,
        NO_SLSH,             KC_F,     KC_G,     KC_C,         KC_R,     KC_L,     LM(NAV2, MOD_LGUI),
