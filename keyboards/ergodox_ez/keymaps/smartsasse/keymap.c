@@ -129,20 +129,20 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  */
 [NAV1] = LAYOUT_ergodox(
        // left hand
-       LCTL(KC_NUBS),  LCTL(KC_1),     LCTL(KC_2),  LCTL(KC_3),  LCTL(KC_4),  LCTL(KC_5),     LCTL(KC_6),
-       LGUI(KC_X),     LGUI(KC_C),     LGUI(KC_V),  KC_MS_U,     KC_NO,       KC_WH_U,        KC_NO,
-       KC_TRNS,        KC_NO,          KC_MS_L,     KC_MS_D,     KC_MS_R,     KC_WH_D,
-       KC_NO,          KC_NO,          KC_NO,       KC_NO,       KC_NO,       KC_NO,          KC_NO,
-       KC_NO,          KC_TRNS,        KC_TRNS,     KC_TRNS,     KC_TRNS, 
-                                                                              VRSN,           EPRM,
-                                                                                              KC_NO,
-                                                                 KC_LSFT,     KC_NO,          KC_BTN1,
+       LCTL(KC_NUBS),  LCTL(KC_1),     LCTL(KC_2),    LCTL(KC_3),  LCTL(KC_4),    LCTL(KC_5),     LCTL(KC_6),
+       LGUI(KC_X),     LGUI(KC_C),     LGUI(KC_V),    KC_MS_U,     KC_NO,         KC_WH_U,        KC_NO,
+       KC_TRNS,        KC_NO,          KC_MS_L,       KC_MS_D,     KC_MS_R,       KC_WH_D,
+       KC_NO,          KC_NO,          KC_NO,         KC_NO,       KC_NO,         KC_NO,          KC_NO,
+       KC_NO,          KC_TRNS,        KC_TRNS,       KC_TRNS,     KC_TRNS, 
+                                                                                  VRSN,           EPRM,
+                                                                                                  KC_NO,
+                                                                   KC_LSFT,       KC_NO,          KC_BTN1,
        // right hand
-       LCTL(KC_7),     LCTL(KC_8),     LCTL(KC_9),  KC_NO,       KC_NO,       KC_NO,          KC_NO,
-       KC_NO,          KC_NO,          KC_HOME,     KC_UP,       KC_END,      KC_NO,          KC_NO,
-                       LALT(KC_LEFT),  KC_LEFT,     KC_DOWN,     KC_RGHT,     LALT(KC_RGHT),  KC_TRNS,
-       KC_NO,          KC_NO,          KC_NO,       KC_NO,       KC_NO,       KC_NO,          KC_NO,
-                                       KC_NO,       KC_NO,       KC_NO,       KC_NO,          KC_NO,
+       LCTL(KC_7),     LCTL(KC_8),     LCTL(KC_9),    KC_NO,       KC_NO,         KC_NO,          KC_NO,
+       KC_NO,          KC_NO,          LALT(KC_RGHT), KC_UP,       LALT(KC_RGHT), KC_NO,          KC_NO,
+                       LALT(KC_LEFT),  KC_LEFT,       KC_DOWN,     KC_RGHT,       LALT(KC_RGHT),  KC_TRNS,
+       KC_NO,          KC_NO,          KC_NO,         KC_NO,       KC_NO,         KC_NO,          KC_NO,
+                                       KC_NO,         KC_NO,       KC_NO,         KC_NO,          KC_NO,
        KC_NO,          KC_NO,
        KC_NO,
        KC_BTN2,        KC_RGUI,        KC_RALT
