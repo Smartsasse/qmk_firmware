@@ -139,7 +139,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                                                    KC_LSFT,       KC_NO,          KC_BTN1,
        // right hand
        LCTL(KC_7),     LCTL(KC_8),     LCTL(KC_9),    KC_NO,       KC_NO,         KC_NO,          KC_NO,
-       KC_NO,          KC_NO,          LALT(KC_RGHT), KC_UP,       LALT(KC_RGHT), KC_NO,          KC_NO,
+       KC_NO,          KC_NO,          LGUI(KC_LEFT), KC_UP,       LGUI(KC_RGHT), KC_NO,          KC_NO,
                        LALT(KC_LEFT),  KC_LEFT,       KC_DOWN,     KC_RGHT,       LALT(KC_RGHT),  KC_TRNS,
        KC_NO,          KC_NO,          KC_NO,         KC_NO,       KC_NO,         KC_NO,          KC_NO,
                                        KC_NO,         KC_NO,       KC_NO,         KC_NO,          KC_NO,
