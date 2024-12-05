@@ -194,8 +194,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  *                                  /     ..    \                       / led on-off\
  *                                 |-------------+------.       ,------+-------------|
  *                                 |      |      |      |       |      |      |      |
- *                                 |brigh-|brigh-|      |       | hue- | hue+ |      |
- *                                 |tness-|tness+|      |       |      |      |      |
+ *                                 |brigh-|brigh-| hue- |       | hue+ |anima-|anima-|
+ *                                 |tness-|tness+|      |       |      |tion -|tion +|
  *                                 `--------------------'       `--------------------'
  */
 [COLR] = LAYOUT_moonlander(
@@ -204,8 +204,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
        KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,                    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,
        KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,                    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,
        KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,                                        KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,
-       KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,          KC_TRNS,                           RGB_TOG,       KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,
-                                               RGB_VAD,  RGB_VAI,  KC_NO,                    RGB_HUD,  RGB_HUI,  KC_NO
+       KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,          KC_TRNS,                           RM_TOGG,       KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,
+                                               RM_VALD,  RM_VALU,  RM_HUED,                  RM_HUEU,  RM_PREV,  RM_NEXT
 ),
 };
 
@@ -254,3 +254,5 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     return true;
 }
+
+// Code to control the 3+3 RGB lights are in moonlander.c. To override just set MOONLANDER_USER_LEDS I think.
