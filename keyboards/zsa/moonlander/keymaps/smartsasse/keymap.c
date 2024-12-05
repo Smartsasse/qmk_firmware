@@ -1,72 +1,255 @@
-/* Copyright 2020 ZSA Technology Labs, Inc <@zsa>
- * Copyright 2020 Jack Humbert <jack.humb@gmail.com>
- * Copyright 2020 Christopher Courtney, aka Drashna Jael're  (@drashna) <drashna@live.com>
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
-
-
 #include QMK_KEYBOARD_H
+#include "debug.h"
+#include "action_layer.h"
 #include "version.h"
+#include "keymap_swedish_pro_mac_ansi.h"
 
-enum layers {
-    BASE,  // default layer
-    SYMB,  // symbols
-    MDIA,  // media keys
-};
+#define BASE 0 // basic layer
+#define SHFT 1 // shifted layer
+#define NAV1 2 // navigation layer 1
+#define NAV2 3 // navigation layer 2
+#define NUMB 4 // number and function layer
+#define COLR 5 // Changing led-colors
 
 enum custom_keycodes {
-    VRSN = SAFE_RANGE,
+  PLACEHOLDER = SAFE_RANGE, // can always be here
+  EPRM,
+  VRSN,
+  RGB_SLD,
 };
 
-// clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-    [BASE] = LAYOUT(
-        KC_EQL,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_LEFT,           KC_RGHT, KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS,
-        KC_DEL,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    TG(SYMB),         TG(SYMB), KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSLS,
-        KC_BSPC, KC_A,    KC_S,    KC_D,    KC_F,    KC_G,    KC_HYPR,           KC_MEH,  KC_H,    KC_J,    KC_K,    KC_L,    LT(MDIA, KC_SCLN), LGUI_T(KC_QUOT),
-        KC_LSFT, LCTL_T(KC_Z),KC_X,KC_C,    KC_V,    KC_B,                                KC_N,    KC_M,    KC_COMM, KC_DOT,  RCTL_T(KC_SLSH), KC_RSFT,
-    LT(SYMB,KC_GRV),WEBUSB_PAIR,A(KC_LSFT),KC_LEFT, KC_RGHT,  LALT_T(KC_APP),    RCTL_T(KC_ESC),   KC_UP,   KC_DOWN, KC_LBRC, KC_RBRC, MO(SYMB),
-                                            KC_SPC,  KC_BSPC, KC_LGUI,           KC_LALT,  KC_TAB,  KC_ENT
-    ),
+// If it accepts an argument (i.e, is a function), it doesn't need KC_.
+// Otherwise, it needs KC_*
 
-    [SYMB] = LAYOUT(
-        VRSN,    KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   _______,           _______, KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,
-        _______, KC_EXLM, KC_AT,   KC_LCBR, KC_RCBR, KC_PIPE, _______,           _______, KC_UP,   KC_7,    KC_8,    KC_9,    KC_ASTR, KC_F12,
-        _______, KC_HASH, KC_DLR,  KC_LPRN, KC_RPRN, KC_GRV,  _______,           _______, KC_DOWN, KC_4,    KC_5,    KC_6,    KC_PLUS, _______,
-        _______, KC_PERC, KC_CIRC, KC_LBRC, KC_RBRC, KC_TILD,                             KC_AMPR, KC_1,    KC_2,    KC_3,    KC_BSLS, _______,
-        EE_CLR,  _______, _______, _______, _______,          RM_VALU,           RM_TOGG,          _______, KC_DOT,  KC_0,    KC_EQL,  _______,
-                                            RM_HUED, RM_VALD, RM_HUEU, TOGGLE_LAYER_COLOR,_______, _______
-    ),
+/* Keymap 0: Base layer
+ *
+ * ,--------------------------------------------------.           ,--------------------------------------------------.
+ * |   Esc  |   @  |   [  |   {  |   (  |   $  |   %  |           |   &  |   =  |   )  |   }  |   ]  |   #  |    ´   |
+ * |--------+------+------+------+------+------+------|           |------+------+------+------+------+------+--------|
+ * | L-NAV2 |   -  |   ,  |   .  |   p  |   y  |   \  |           |   /  |   f  |   g  |   c  |   r  |   l  | L-NAV2 |
+ * |--------+------+------+------+------+------+------|           |------+------+------+------+------+------+--------|
+ * | L-NAV1 |   a  |   o  |   e  |   u  |   i  |   !  |           |   ?  |   d  |   h  |   t  |   n  |   s  | L-NAV1 |
+ * |--------+------+------+------+------+------+------'           `------+------+------+------+------+------+--------|
+ * | L-SHFT |   '  |   q  |   j  |   k  |   x  |                         |   b  |   m  |   w  |   v  |   z  | L-SHFT |
+ * |--------+------+------+------+------+------'                         `------+------+------+------+------+--------|
+ * | L-NUMB | Shift| Ctrl |  Alt |  Cmd |                                       |   ;  |   å  |   ä  |   ö  | L-NUMB |
+ * `------------------------------------'                                       `------------------------------------'
+ *                                   ,---------.                         ,---------.
+ *                                  /  L-COLR   \                       /     §     \
+ *                                 |-------------+------.       ,------+------|------|
+ *                                 |      |      |      |       |      |      |      |
+ *                                 | Space|  Tab |Ctl-F4|       |  Del | Back-| Enter|
+ *                                 |      |      |      |       |      | space|      |
+ *                                 `--------------------'       `--------------------'
+ */
+[BASE] = LAYOUT_moonlander(
+       // left hand                                                                                                   // right hand
+       KC_ESC,              SE_AT,    SE_LBRC,  SE_LCBR,      SE_LPRN,  SE_DLR,   KC_PERC,                            SE_AMPR,             SE_EQL,   SE_RPRN,  SE_RCBR,      SE_RBRC,  KC_HASH,  SE_ACUT,
+       LM(NAV2, MOD_LGUI),  SE_MINS,  KC_COMM,  KC_DOT,       KC_P,     KC_Y,     SE_BSLS,                            SE_SLSH,             KC_F,     KC_G,     KC_C,         KC_R,     KC_L,     LM(NAV2, MOD_LGUI),
+       MO(NAV1),            KC_A,     KC_O,     KC_E,         KC_U,     KC_I,     KC_EXLM,                            SE_QUES,             KC_D,     KC_H,     KC_T,         KC_N,     KC_S,     MO(NAV1),
+       MO(SHFT),            SE_QUOT,  KC_Q,     KC_J,         KC_K,     KC_X,                                                              KC_B,     KC_M,     KC_W,         KC_V,     KC_Z,     MO(SHFT),
+       MO(NUMB),            KC_LSFT,  KC_LCTL,  KC_LALT,      KC_LGUI,       MO(COLR),                                        KC_NUBS,               SE_SCLN,  SE_ARNG,      SE_ADIA,  SE_ODIA,  MO(NUMB),
+                                                              KC_SPC,   KC_TAB,   LCTL(KC_F4),                        KC_DEL,              KC_BSPC,  KC_ENT
+),
 
-    [MDIA] = LAYOUT(
-        LED_LEVEL,_______,_______, _______, _______, _______, _______,           _______, _______, _______, _______, _______, _______, QK_BOOT,
-        _______, _______, _______, KC_MS_U, _______, _______, _______,           _______, _______, _______, _______, _______, _______, _______,
-        _______, _______, KC_MS_L, KC_MS_D, KC_MS_R, _______, _______,           _______, _______, _______, _______, _______, _______, KC_MPLY,
-        _______, _______, _______, _______, _______, _______,                             _______, _______, KC_MPRV, KC_MNXT, _______, _______,
-        _______, _______, _______, KC_BTN1, KC_BTN2,         _______,            _______,          KC_VOLU, KC_VOLD, KC_MUTE, _______, _______,
-                                            _______, _______, _______,           _______, _______, _______
-    ),
+/* Keymap 1: Shifted layer
+ *
+ * ,--------------------------------------------------.           ,--------------------------------------------------.
+ * |   ..   |      |      |      |      |      |      |           |      |      |      |      |   *  |      |    `   |
+ * |--------+------+------+------+------+------+------|           |------+------+------+------+------+------+--------|
+ * | S(Cmd) |   _  |   <  |   >  |   P  |   Y  |   ~  |           |   |  |   F  |   G  |   C  |   R  |   L  | S(Cmd) |
+ * |--------+------+------+------+------+------+------|           |------+------+------+------+------+------+--------|
+ * |        |   A  |   O  |   E  |   U  |   I  |   ^  |           |   +  |   D  |   H  |   T  |   N  |   S  |        |
+ * |--------+------+------+------+------+------+------'           `------+------+------+------+------+------+--------|
+ * |   ..   |   "  |   Q  |   J  |   K  |   X  |                         |   B  |   M  |   W  |   V  |   Z  |   ..   |
+ * |--------+------+------+------+------+------'                         `------+------+------+------+------+--------|
+ * |        |  ..  |  ..  |  ..  |  ..  |                                       |   :  |   Å  |   Ä  |   Ö  |        |
+ * `------------------------------------'                                       `------------------------------------'
+ *                                   ,---------.                         ,---------.
+ *                                  /           \                       /           \
+ *                                 |-------------+------.       ,------+------|------|
+ *                                 |      |      |      |       |      |      |      |
+ *                                 | S(..)| S(..)|      |       |  ..  |  ..  | S(..)|
+ *                                 |      |      |      |       |      |      |      |
+ *                                 `--------------------'       `--------------------'
+ */
+[SHFT] = LAYOUT_moonlander(
+       // left hand                                                                                                   // right hand
+       KC_TRNS,      KC_NO,    KC_NO,        KC_NO,        KC_NO,      KC_NO,       KC_NO,                            KC_NO,        KC_NO,    KC_NO,        KC_NO,        SE_ASTR,    KC_NO,       SE_GRV,
+       S(KC_LGUI),   SE_UNDS,  SE_LABK,      SE_RABK,      S(KC_P),    S(KC_Y),     SE_TILD,                          SE_PIPE,      S(KC_F),  S(KC_G),      S(KC_C),      S(KC_R),    S(KC_L),     S(KC_LGUI),
+       KC_NO,        S(KC_A),  S(KC_O),      S(KC_E),      S(KC_U),    S(KC_I),     SE_CIRC,                          SE_PLUS,      S(KC_D),  S(KC_H),      S(KC_T),      S(KC_N),    S(KC_S),     KC_NO,
+       KC_TRNS,      SE_DQUO,  S(KC_Q),      S(KC_J),      S(KC_K),    S(KC_X),                                                     S(KC_B),  S(KC_M),      S(KC_W),      S(KC_V),    S(KC_Z),     KC_TRNS,
+       KC_NO,        KC_TRNS,  KC_TRNS,      KC_TRNS,      KC_TRNS,            KC_NO,                                          KC_NO,         SE_COLN,      S(SE_ARNG),   S(SE_ADIA), S(SE_ODIA),  KC_NO,
+                                                           S(KC_SPC),  S(KC_TAB),   KC_NO,                            KC_TRNS,      KC_TRNS,  S(KC_ENT)
+),
+
+/* Keymap 2: Navigation Layer 1
+ *
+ * ,--------------------------------------------------.           ,--------------------------------------------------.
+ * | Ctrl-§ | Ctl1 | Ctl2 | Ctl3 | Ctl4 | Ctl5 | Ctl6 |           | Ctl7 | Ctl8 | Ctl9 |      |Script|      |        |
+ * |--------+------+------+------+------+------+------|           |------+------+------+------+------+------+--------|
+ * |   Cut  | Copy | Paste| MsUp |      |MsWhlU|      |           |      |      | Home |  UP  |  End |      |        |
+ * |--------+------+------+------+------+------+------|           |------+------+------+------+------+------+--------|
+ * |   ..   |      |MsLeft|MsDown|MsRght|MsWhlD|      |           |      | Alt-L| LEFT | DOWN | RIGHT| Alt-R|   ..   |
+ * |--------+------+------+------+------+------+------'           `------+------+------+------+------+------+--------|
+ * |        |      |      |      |      |      |                         |      |      |      |      |      |        |
+ * |--------+------+------+------+------+------'                         `------+------+------+------+------+--------|
+ * |        |  ..  |  ..  |  ..  |  ..  |                                       |      |      |      |      |        |
+ * `------------------------------------'                                       `------------------------------------'
+ *                                   ,---------.                         ,---------.
+ *                                  /    VRSN   \                       /    EPRM   \
+ *                                 |-------------+------.       ,------+------|------|
+ *                                 |      |      |      |       |      |      |      |
+ *                                 | Shift|      | LClk |       | RClk |  CMD |  ALT |
+ *                                 |      |      |      |       |      |      |      |
+ *                                 `--------------------'       `--------------------'
+ */
+[NAV1] = LAYOUT_moonlander(
+       // left hand                                                                                                                   // right hand
+       LCTL(KC_NUBS),  LCTL(KC_1),     LCTL(KC_2),    LCTL(KC_3),  LCTL(KC_4),       LCTL(KC_5),        LCTL(KC_6),                   LCTL(KC_7),     LCTL(KC_8),     LCTL(KC_9),    KC_NO,       S(LGUI(KC_NUBS)), KC_NO,             KC_NO,
+       LGUI(KC_X),     LGUI(KC_C),     LGUI(KC_V),    KC_MS_U,     KC_NO,            KC_WH_U,           KC_NO,                        KC_NO,          KC_NO,          LGUI(KC_LEFT), KC_UP,       LGUI(KC_RGHT),    KC_NO,             KC_NO,
+       KC_TRNS,        KC_NO,          KC_MS_L,       KC_MS_D,     KC_MS_R,          KC_WH_D,           KC_NO,                        KC_NO,          LALT(KC_LEFT),  KC_LEFT,       KC_DOWN,     KC_RGHT,          LALT(KC_RGHT),     KC_TRNS,
+       KC_NO,          KC_NO,          KC_NO,         KC_NO,       KC_NO,            KC_NO,                                                           KC_NO,          KC_NO,         KC_NO,       KC_NO,            KC_NO,             KC_NO,
+       KC_NO,          KC_TRNS,        KC_TRNS,       KC_TRNS,     KC_TRNS,                     VRSN,                                          EPRM,                  KC_NO,         KC_NO,       KC_NO,            KC_NO,             KC_NO,
+                                                                   KC_LSFT,          KC_NO,             KC_BTN1,                      KC_BTN2,        KC_RGUI,        KC_RALT
+),
+
+/* Keymap 3: Navigation Layer 2
+ *
+ * ,--------------------------------------------------.           ,--------------------------------------------------.
+ * |  Cmd-0 | Cmd1 | Cmd2 | Cmd3 | Cmd4 | Cmd5 | Cmd6 |           | Cmd7 | Cmd8 | Cmd9 |      |      |      |        |
+ * |--------+------+------+------+------+------+------|           |------+------+------+------+------+------+--------|
+ * |   ..   | Cmd--| Cmd-,| Cmd-.| Cmd-P| Cmd-Y|      |           |      | Cmd-F| Cmd-G| Cmd-C| Cmd-R| Cmd-L|   ..   |
+ * |--------+------+------+------+------+------+------|           |------+------+------+------+------+------+--------|
+ * |        | Cmd-A| Cmd-O| Cmd-E| Cmd-U| Cmd-I|      |           |      | Cmd-D| Cmd-H| Cmd-T| Cmd-N| Cmd-S|        |
+ * |--------+------+------+------+------+------+------'           `------+------+------+------+------+------+--------|
+ * | S(Cmd) |      | Cmd-Q| Cmd-J| Cmd-K|      |                         | Cmd-B| Cmd-M| Cmd-W| Cmd-V| Cmd-Z| S(Cmd) |
+ * |--------+------+------+------+------+------'                         `------+------+------+------+------+--------|
+ * |        |  ..  |  ..  |  ..  |  ..  |                                       |      |      |      |      |        |
+ * `------------------------------------'                                       `------------------------------------'
+ *                                   ,---------.                         ,---------.
+ *                                  /           \                       /           \
+ *                                 |-------------+------.       ,------+------|------|
+ *                                 |      |      |      |       |      |      |      |
+ *                                 | Cmd- |      |      |       |Cm-del| Cmd- | Cmd- |
+ *                                 | Space|      |      |       |      | Bspc | Enter|
+ *                                 `--------------------'       `--------------------'
+ */
+[NAV2] = LAYOUT_moonlander(
+       // left hand                                                                               // right hand
+       KC_0,     KC_1,     KC_2,     KC_3,     KC_4,     KC_5,     KC_6,                          KC_7,     KC_8,     KC_9,     KC_NO,    KC_NO,    KC_NO,    KC_NO,
+       KC_TRNS,  SE_MINS,  KC_COMM,  KC_DOT,   KC_P,     KC_Y,     KC_NO,                         KC_NO,    KC_F,     KC_G,     KC_C,     KC_R,     KC_L,     KC_TRNS,
+       KC_NO,    KC_A,     KC_O,     KC_E,     KC_U,     KC_I,     KC_NO,                         KC_NO,    KC_D,     KC_H,     KC_T,     KC_N,     KC_S,     KC_NO,
+       KC_LSFT,  KC_NO,    KC_Q,     KC_J,     KC_K,     KC_X,                                              KC_B,     KC_M,     KC_W,     KC_V,     KC_Z,     KC_LSFT,
+       KC_NO,    KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,        KC_NO,                                  KC_NO,         KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,
+                                               KC_SPC,   KC_NO,    KC_NO,                         KC_DEL,  KC_BSPC,  KC_ENT
+),
+
+/* Keymap 4: Number and Function Layer
+ *
+ * ,--------------------------------------------------.           ,--------------------------------------------------.
+ * |        |  F1  |  F2  |  F3  |  F4  |  F5  |  F6  |           |      |      |      |   /  |   *  |      |  Lock  |
+ * |--------+------+------+------+------+------+------|           |------+------+------+------+------+------+--------|
+ * |        |  F7  |  F8  |  F9  |  F10 |  F11 |  F12 |           |      |      |   7  |   8  |   9  |  -   | ScrShot|
+ * |--------+------+------+------+------+------+------|           |------+------+------+------+------+------+--------|
+ * |        |      |      |      |      |      |      |           |      |      |   4  |   5  |   6  |  +   | ScrShot|
+ * |--------+------+------+------+------+------+------'           `------+------+------+------+------+------+--------|
+ * |        |      |      |      |      |      |                         |      |   1  |   2  |   3  | Enter|        |
+ * |--------+------+------+------+------+------'                         `------+------+------+------+------+--------|
+ * |   ..   |  ..  |  ..  |  ..  |  ..  |                                       |      |   0  |   ,  |      |   ..   |
+ * `------------------------------------'                                       `------------------------------------'
+ *                                   ,---------.                         ,---------.
+ *                                  /           \                       /           \
+ *                                 |-------------+------.       ,------+------|------|
+ *                                 |      |      |      |       |      |      |      |
+ *                                 |  ..  |  ..  |      |       |  ..  |  ..  |  ..  |
+ *                                 |      |      |      |       |      |      |      |
+ *                                 `--------------------'       `--------------------'
+ */
+[NUMB] = LAYOUT_moonlander(
+       // left hand                                                                          // right hand
+       KC_NO,    KC_F1,    KC_F2,    KC_F3,    KC_F4,    KC_F5,    KC_F6,                    KC_NO,    KC_NO,    KC_NO,    SE_SLSH,  SE_ASTR,  KC_NO,    LGUI(LCTL(KC_Q)),
+       KC_NO,    KC_F7,    KC_F8,    KC_F9,    KC_F10,   KC_F11,   KC_F12,                   KC_NO,    KC_NO,    KC_7,     KC_8,     KC_9,     SE_MINS,  LGUI(LCTL(S(KC_4))),
+       KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,                    KC_NO,    KC_NO,    KC_4,     KC_5,     KC_6,     SE_PLUS,  LGUI(S(KC_4)),
+       KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,                                        KC_NO,    KC_1,     KC_2,     KC_3,     KC_ENT,   KC_NO,
+       KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,        KC_NO,                              KC_NO,        KC_NO,    KC_0,     KC_COMM,  KC_NO,    KC_TRNS,
+                                               KC_TRNS,  KC_TRNS,  KC_NO,                    KC_TRNS,  KC_TRNS,  KC_TRNS
+),
+
+/* Keymap 4: LED-color Layer
+ *
+ * ,--------------------------------------------------.           ,--------------------------------------------------.
+ * |        |      |      |      |      |      |      |           |      |      |      |      |      |      |        |
+ * |--------+------+------+------+------+------+------|           |------+------+------+------+------+------+--------|
+ * |        |      |      |      |      |      |      |           |      |      |      |      |      |      |        |
+ * |--------+------+------+------+------+------+------|           |------+------+------+------+------+------+--------|
+ * |        |      |      |      |      |      |      |           |      |      |      |      |      |      |        |
+ * |--------+------+------+------+------+------+------'           `------+------+------+------+------+------+--------|
+ * |        |      |      |      |      |      |                         |      |      |      |      |      |        |
+ * |--------+------+------+------+------+------'                         `------+------+------+------+------+--------|
+ * |        |      |      |      |      |                                       |      |      |      |      |        |
+ * `------------------------------------'                                       `------------------------------------'
+ *                                   ,---------.                         ,---------.
+ *                                  /     ..    \                       / led on-off\
+ *                                 |-------------+------.       ,------+-------------|
+ *                                 |      |      |      |       |      |      |      |
+ *                                 |brigh-|brigh-|      |       | hue- | hue+ |      |
+ *                                 |tness-|tness+|      |       |      |      |      |
+ *                                 `--------------------'       `--------------------'
+ */
+[COLR] = LAYOUT_moonlander(
+       // left hand                                                                          // right hand
+       KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,                    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,
+       KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,                    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,
+       KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,                    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,
+       KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,                                        KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,
+       KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,          KC_TRNS,                           RGB_TOG,       KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,
+                                               RGB_VAD,  RGB_VAI,  KC_NO,                    RGB_HUD,  RGB_HUI,  KC_NO
+),
 };
+
+
+
+// // clang-format off
+// const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
+//     [BASE] = LAYOUT(
+//         KC_EQL,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_LEFT,           KC_RGHT, KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS,
+//         KC_DEL,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    TG(SYMB),         TG(SYMB), KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSLS,
+//         KC_BSPC, KC_A,    KC_S,    KC_D,    KC_F,    KC_G,    KC_HYPR,           KC_MEH,  KC_H,    KC_J,    KC_K,    KC_L,    LT(MDIA, KC_SCLN), LGUI_T(KC_QUOT),
+//         KC_LSFT, LCTL_T(KC_Z),KC_X,KC_C,    KC_V,    KC_B,                                KC_N,    KC_M,    KC_COMM, KC_DOT,  RCTL_T(KC_SLSH), KC_RSFT,
+//     LT(SYMB,KC_GRV),WEBUSB_PAIR,A(KC_LSFT),KC_LEFT, KC_RGHT,  LALT_T(KC_APP),    RCTL_T(KC_ESC),   KC_UP,   KC_DOWN, KC_LBRC, KC_RBRC, MO(SYMB),
+//                                             KC_SPC,  KC_BSPC, KC_LGUI,           KC_LALT,  KC_TAB,  KC_ENT
+//     ),
+
+//     [SYMB] = LAYOUT(
+//         VRSN,    KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   _______,           _______, KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,
+//         _______, KC_EXLM, KC_AT,   KC_LCBR, KC_RCBR, KC_PIPE, _______,           _______, KC_UP,   KC_7,    KC_8,    KC_9,    KC_ASTR, KC_F12,
+//         _______, KC_HASH, KC_DLR,  KC_LPRN, KC_RPRN, KC_GRV,  _______,           _______, KC_DOWN, KC_4,    KC_5,    KC_6,    KC_PLUS, _______,
+//         _______, KC_PERC, KC_CIRC, KC_LBRC, KC_RBRC, KC_TILD,                             KC_AMPR, KC_1,    KC_2,    KC_3,    KC_BSLS, _______,
+//         EE_CLR,  _______, _______, _______, _______,          RM_VALU,           RM_TOGG,          _______, KC_DOT,  KC_0,    KC_EQL,  _______,
+//                                             RM_HUED, RM_VALD, RM_HUEU, TOGGLE_LAYER_COLOR,_______, _______
+//     ),
+
+//     [MDIA] = LAYOUT(
+//         LED_LEVEL,_______,_______, _______, _______, _______, _______,           _______, _______, _______, _______, _______, _______, QK_BOOT,
+//         _______, _______, _______, KC_MS_U, _______, _______, _______,           _______, _______, _______, _______, _______, _______, _______,
+//         _______, _______, KC_MS_L, KC_MS_D, KC_MS_R, _______, _______,           _______, _______, _______, _______, _______, _______, KC_MPLY,
+//         _______, _______, _______, _______, _______, _______,                             _______, _______, KC_MPRV, KC_MNXT, _______, _______,
+//         _______, _______, _______, KC_BTN1, KC_BTN2,         _______,            _______,          KC_VOLU, KC_VOLD, KC_MUTE, _______, _______,
+//                                             _______, _______, _______,           _______, _______, _______
+//     ),
+// };
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (record->event.pressed) {
         switch (keycode) {
-        case VRSN:
-            SEND_STRING (QMK_KEYBOARD "/" QMK_KEYMAP " @ " QMK_VERSION);
-            return false;
+            case EPRM:
+                eeconfig_init();
+                return false;
+            case VRSN:
+                SEND_STRING (QMK_KEYBOARD "/" QMK_KEYMAP " @ " QMK_VERSION);
+                return false;
         }
     }
     return true;
